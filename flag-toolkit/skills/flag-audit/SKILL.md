@@ -3,7 +3,7 @@ name: flag-audit
 description: Audit feature flags for prod rollouts that exceed staging. Use when asked to audit flags or check prod vs staging percentages.
 ---
 
-List every flag whose prod `rolloutPercent` is higher than its staging `rolloutPercent`.
+List every flag whose prod percent is higher than its staging percent. Compare `effectivePercent` (the current percent, including any ramp) when present, otherwise `rolloutPercent`; note any active ramp and its target.
 
 1. Read flags via the `flag-store` MCP `list_flags` tool if available; otherwise read `lib/flags.js`.
 2. Pair each prod flag with its staging entry by `key`.

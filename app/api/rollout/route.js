@@ -1,4 +1,5 @@
 import { FLAGS } from '../../../lib/flags.js';
+import { effectivePercent } from '../../../lib/evaluate.js';
 
 // In-memory only. Restarting the server resets everything.
 // A real flag service would persist to a DB and emit an audit event.
@@ -29,11 +30,13 @@ export async function POST(request) {
     return Response.json({ error: `flag '${key}' not found in ${env}` }, { status: 404 });
   }
 
-  // Prove it in staging first: prod may never be raised above the staging rollout.
-  // Lowering prod (a rollback) is always allowed.
-  if (env === 'prod' && percent > flag.rolloutPercent) {
+  const previous = effectivePercent(flag);
+
+  // Prove it in staging first: prod may never be raised above staging's current
+  // (possibly ramping) rollout. Lowering prod (a rollback) is always allowed.
+  if (env === 'prod' && percent > previous) {
     const staging = FLAGS.find((f) => f.key === key && f.env === 'staging');
-    const stagingPercent = staging?.enabled ? staging.rolloutPercent : 0;
+    const stagingPercent = staging?.enabled ? effectivePercent(staging) : 0;
     if (percent > stagingPercent) {
       return Response.json(
         { error: `prod cannot exceed staging (${stagingPercent}%) for '${key}'` },
@@ -42,7 +45,8 @@ export async function POST(request) {
     }
   }
 
-  const previous = flag.rolloutPercent;
+  // A manual percentage overrides any scheduled ramp.
+  delete flag.ramp;
   flag.rolloutPercent = percent;
 
   return Response.json({

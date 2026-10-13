@@ -11,14 +11,15 @@ Flags are a static array in `lib/flags.js`, one entry per key per env:
 - `env`: `dev` | `staging` | `prod`
 - `enabled`: kill switch; when false the flag is off regardless of `rolloutPercent`
 - `rolloutPercent`: 0–100; 0 is nobody, 100 is everyone
+- `ramp` (optional): `{ to, step, intervalMinutes, startAt }`; +step% per interval up to `to`
 - `description`, `owner`: free text and owning team slug
 
 `lib/evaluate.js` hashes the userId into a bucket 0–99 and includes the user if
-bucket < `rolloutPercent`. `POST /api/rollout` changes a % in memory only (lost on restart).
+bucket < `effectivePercent(flag)` (rolloutPercent, advanced by any ramp). `POST /api/rollout` changes a % in memory only (lost on restart).
 
 ## Never
 - Never bump a prod flag's `rolloutPercent` without `npm test` passing first.
 - Never raise a prod flag above its staging %; prove it in staging first.
-- Never edit percentages in `lib/flags.js` by hand; only the `/rollout` skill (tests first) may.
+- Never edit percentages in `lib/flags.js` by hand; only `/rollout` or `/ramp` (tests first) may.
 - Never edit tests to make them pass; fix the code.
 - Never change the hash or modulus in `lib/evaluate.js` casually; it reassigns users on live rollouts.

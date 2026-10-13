@@ -1,5 +1,5 @@
 import { FLAGS } from '../../../../lib/flags.js';
-import { evaluate } from '../../../../lib/evaluate.js';
+import { evaluate, effectivePercent } from '../../../../lib/evaluate.js';
 
 export async function GET(request, { params }) {
   // Next 15+ passes params as a Promise; reading it synchronously gives undefined.
@@ -14,7 +14,7 @@ export async function GET(request, { params }) {
     return Response.json({ error: `flag '${key}' not found in ${env}` }, { status: 404 });
   }
 
-  const body = { flag };
+  const body = { flag: { ...flag, effectivePercent: effectivePercent(flag) } };
   if (userId) {
     body.enabled = evaluate(flag, userId);
     body.userId = userId;

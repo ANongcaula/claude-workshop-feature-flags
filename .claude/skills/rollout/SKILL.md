@@ -9,7 +9,7 @@ Roll out a flag. Arguments: $ARGUMENTS (flag key, percent 0–100, optional `pro
 1. Validate: the flag key exists in `lib/flags.js` for the target env and the percent is a whole number 0–100. Otherwise stop and say why.
 2. Run `npm test`.
 3. If any test fails: **stop**. Do not edit anything. Show the failing test names and assertion output, and say the rollout was refused.
-4. If all tests pass, edit only that flag's `rolloutPercent` in `lib/flags.js`:
+4. If all tests pass, edit only that flag's `rolloutPercent` in `lib/flags.js` (and remove its `ramp` field if present: a manual % cancels a ramp):
    - Default target is the **staging** entry.
    - **Prod only if** `prod` was passed **and** the user explicitly confirms in this conversation after you state the current and new value. Without both, do not touch prod.
    - Refuse to set prod above that flag's staging percentage, even with confirmation.
