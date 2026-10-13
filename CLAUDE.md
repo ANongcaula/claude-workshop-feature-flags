@@ -19,6 +19,6 @@ bucket < `rolloutPercent`. `POST /api/rollout` changes a % in memory only (lost 
 ## Never
 - Never bump a prod flag's `rolloutPercent` without `npm test` passing first.
 - Never raise a prod flag above its staging %; prove it in staging first.
-- Never edit percentages in `lib/flags.js` directly; use `/api/rollout` or the `/rollout` skill.
+- Never edit percentages in `lib/flags.js` by hand; only the `/rollout` skill (tests first) may.
 - Never edit tests to make them pass; fix the code.
 - Never change the hash or modulus in `lib/evaluate.js` casually; it reassigns users on live rollouts.
